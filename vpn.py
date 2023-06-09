@@ -2,6 +2,7 @@ from ping3 import ping
 from prefect import task, flow
 from prefect.task_runners import SequentialTaskRunner
 from prefect.server.schemas.states import Completed, Failed
+from prefect.deployments import Deployment
 
 @task
 def launch_vpn():
@@ -51,6 +52,15 @@ def my_flow(task_runner=SequentialTaskRunner()):
     y = other_task()
 
 if __name__ == "__main__":
+
+    deployment = Deployment.build_from_flow(
+        name="vpn",
+        flow=my_flow,
+        work_queue_name="agent-prod",
+        work_pool_name="xana-pool"
+    )
+    deployment.apply()
+
     my_flow()
 
 
