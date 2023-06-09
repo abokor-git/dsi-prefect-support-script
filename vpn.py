@@ -2,7 +2,6 @@ from ping3 import ping
 from prefect import task, flow
 from prefect.server.schemas.states import Completed, Failed
 from prefect.deployments import Deployment
-from prefect.task_runners import SequentialTaskRunner
 
 @task
 def launch_vpn():
@@ -44,7 +43,7 @@ def check_ip_availability():
 ####################################################################################
 
 @flow
-def my_flow(task_runner=SequentialTaskRunner()):
+def my_flow():
 
     vpn_status = check_ip_availability.submit()
     if vpn_status.get_state().is_failed():
