@@ -36,9 +36,9 @@ def check_ip_availability():
             hist.append(False)
 
     if True in hist:
-        return "not connected"
+        return Failed("not connected")
     
-    return "connected"
+    return Completed("connected")
 
 ####################################################################################
 
