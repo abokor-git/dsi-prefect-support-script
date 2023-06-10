@@ -2,6 +2,7 @@ from ping3 import ping
 from prefect import task, flow
 from prefect.server.schemas.states import Completed, Failed
 from prefect.deployments import Deployment
+import os
 
 @task
 def launch_vpn():
@@ -9,7 +10,10 @@ def launch_vpn():
 
 @task
 def other_task():
-    print('Other Task !!!')
+    server = os.getenv('SERVER')
+    user = os.getenv('USER')
+    password = os.getenv('PASSWORD')
+    print(server, user, password)
 
 @task
 def check_ip_availability():
