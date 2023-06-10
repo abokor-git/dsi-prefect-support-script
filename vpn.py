@@ -50,8 +50,12 @@ def my_flow():
     if vpn_status.get_state().is_failed():
         x = launch_vpn.submit()
         y = other_task.submit(wait_for=[x])
+        result = y.result(raise_on_failure=False)
+        return Completed()
     else:
         y = other_task.submit(wait_for=[vpn_status])
+        result = y.result(raise_on_failure=False)
+        return Completed()
 
 if __name__ == "__main__":
 
