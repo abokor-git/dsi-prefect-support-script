@@ -3,17 +3,26 @@ from prefect import task, flow
 from prefect.server.schemas.states import Completed, Failed
 from prefect.deployments import Deployment
 import os
+import subprocess
 
 @task
 def launch_vpn():
-    print('Active VPN !!!')
+    server = os.getenv('SERVER')
+    server_cert = os.getenv('SERVER_CERT')
+    user = os.getenv('USER')
+    password = os.getenv('PASSWORD')
+
+    # Construire la commande à exécuter
+    command = f"openconnect {server} --servercert pin-sha256:{server_cert} --user={user} --key-password={password} <<EOF\n{password}\nEOF &"
+
+    # Exécuter la commande en arrière-plan
+    subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
 
 @task
 def other_task():
-    server = os.getenv('SERVER')
-    user = os.getenv('USER')
-    password = os.getenv('PASSWORD')
-    print(server, user, password)
+    ip = "10.39.234.26"
+    result = ping(ip)
+    print("résultat du ping prod",result)
 
 @task
 def check_ip_availability():
