@@ -36,9 +36,9 @@ def check_ip_availability():
             hist.append(False)
 
     if True in hist:
-        return Failed()
+        return Completed()
     
-    return Completed()
+    return Failed()
 
 ####################################################################################
 
@@ -51,7 +51,7 @@ def my_flow():
         x = launch_vpn.submit()
         y = other_task.submit(wait_for=[x])
     else:
-        y = other_task.submit(wait_for=[vpn_status,])
+        y = other_task.submit(wait_for=[vpn_status])
 
 if __name__ == "__main__":
 
