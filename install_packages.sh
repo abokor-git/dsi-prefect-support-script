@@ -13,6 +13,6 @@ fi
 while IFS= read -r package; do
   # Installation du package avec la commande appropriée
   # Adapté en fonction de votre distribution Linux
-  apt install -y "$package"
+  apt install "$package" -y
   
 done < "$packages_file"
