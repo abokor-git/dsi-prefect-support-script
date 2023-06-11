@@ -2,7 +2,7 @@ import os
 import subprocess
 
 server = os.getenv('SERVER')
-server_cert = "MS7C3HcsLXAGpV//BP9kRVSljeneny3BM+8Vrgy7dn4="
+server_cert = os.getenv('SERVER_CERT')
 user = os.getenv('USER')
 password = os.getenv('PASSWORD')
 
