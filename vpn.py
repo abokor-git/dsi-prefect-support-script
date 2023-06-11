@@ -2,8 +2,10 @@ from ping3 import ping
 from prefect import task, flow
 from prefect.server.schemas.states import Completed, Failed
 from prefect.deployments import Deployment
+from prefect.blocks.system import Secret
 import os
 import subprocess
+
 
 @task
 def launch_vpn():
@@ -18,11 +20,17 @@ def launch_vpn():
     # Exécuter la commande en arrière-plan
     subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
 
+
 @task
 def other_task():
-    ip = "10.39.234.26"
-    result = ping(ip)
-    print("résultat du ping prod",result)
+    # ip = "10.39.234.26"
+    # result = ping(ip)
+    # print("résultat du ping prod",result)
+    secret_block = Secret.load("ocs-prod")
+
+    # Access the stored secret
+    print(secret_block.get())
+
 
 @task
 def check_ip_availability():
@@ -37,7 +45,7 @@ def check_ip_availability():
         "10.10.15.165",
         "10.10.15.216",
         "10.10.15.217"
-        ]
+    ]
 
     for ip in ip_list:
         hist = []
@@ -50,10 +58,11 @@ def check_ip_availability():
 
     if True in hist:
         return Completed()
-    
+
     return Failed()
 
 ####################################################################################
+
 
 @flow
 def my_flow():
@@ -70,6 +79,7 @@ def my_flow():
         result = y.result(raise_on_failure=False)
         return Completed()
 
+
 if __name__ == "__main__":
 
     deployment = Deployment.build_from_flow(
@@ -81,5 +91,3 @@ if __name__ == "__main__":
     deployment.apply()
 
     my_flow()
-
-
