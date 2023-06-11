@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Chemin vers le fichier packages.txt
-packages_file="packages.txt"
+packages_file="/app/packages.txt"
 
 # Vérification de l'existence du fichier
 if [ ! -f "$packages_file" ]; then
