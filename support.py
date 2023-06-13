@@ -130,23 +130,23 @@ def support():
         get_data_result, "TOPUP", wait_for=[get_data])
     topup_result = data_filtered_topup.result(raise_on_failure=False)
 
-    if isinstance(aaa_result, pd.DataFrame):
+    if isinstance(aaa_result, pd.DataFrame) and not aaa_result.empty:
         a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
 
-    if isinstance(bscs_result, pd.DataFrame):
+    if isinstance(bscs_result, pd.DataFrame) and not bscs_result.empty:
         b = print_bscs_data.submit(bscs_result, wait_for=[data_filtered_bscs])
 
-    if isinstance(dpi_result, pd.DataFrame):
+    if isinstance(dpi_result, pd.DataFrame) and not dpi_result.empty:
         c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
 
-    if isinstance(elastic_result, pd.DataFrame):
+    if isinstance(elastic_result, pd.DataFrame) and not elastic_result.empty:
         d = print_elastic_data.submit(
             elastic_result, wait_for=[data_filtered_elastic])
 
-    if isinstance(ocs_result, pd.DataFrame):
+    if isinstance(ocs_result, pd.DataFrame) and not ocs_result.empty:
         e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
 
-    if isinstance(topup_result, pd.DataFrame):
+    if isinstance(topup_result, pd.DataFrame) and not topup_result.empty:
         f = print_topup_data.submit(
             topup_result, wait_for=[data_filtered_topup])
 
