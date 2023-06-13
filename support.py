@@ -90,7 +90,8 @@ def get_support_request():
         connection.close()
 
         # Création d'un DataFrame à partir des résultats
-        df = pd.DataFrame(rows)
+        df = pd.DataFrame(
+            rows, columns=['id', 'payload', 'platform', 'date', 'is_processed', 'user'])
 
         return df
 
