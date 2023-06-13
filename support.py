@@ -130,23 +130,23 @@ def support():
         get_data_result, "TOPUP", wait_for=[get_data])
     topup_result = data_filtered_topup.result(raise_on_failure=False)
 
-    if aaa_result != None:
+    if isinstance(aaa_result, pd.DataFrame):
         a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
 
-    if bscs_result != None:
+    if isinstance(bscs_result, pd.DataFrame):
         b = print_bscs_data.submit(bscs_result, wait_for=[data_filtered_bscs])
 
-    if dpi_result != None:
+    if isinstance(dpi_result, pd.DataFrame):
         c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
 
-    if elastic_result != None:
+    if isinstance(elastic_result, pd.DataFrame):
         d = print_elastic_data.submit(
             elastic_result, wait_for=[data_filtered_elastic])
 
-    if ocs_result != None:
+    if isinstance(ocs_result, pd.DataFrame):
         e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
 
-    if topup_result != None:
+    if isinstance(topup_result, pd.DataFrame):
         f = print_topup_data.submit(
             topup_result, wait_for=[data_filtered_topup])
 
