@@ -9,7 +9,7 @@ import time
 @task
 def print_values(values):
     for value in values:
-        time.sleep(0.5)
+        time.sleep(5)
         print(value, end="\r")
 
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         name="Support Script",
         flow=support,
         work_queue_name="agent-prod",
-        work_pool_name="xana-pool"
+        work_pool_name="xana-pools"
     )
     deployment.apply()
 
