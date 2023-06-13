@@ -130,13 +130,25 @@ def support():
         get_data_result, "TOPUP", wait_for=[get_data])
     topup_result = data_filtered_topup.result(raise_on_failure=False)
 
-    a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
-    b = print_bscs_data.submit(bscs_result, wait_for=[data_filtered_bscs])
-    c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
-    d = print_elastic_data.submit(
-        elastic_result, wait_for=[data_filtered_elastic])
-    e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
-    f = print_topup_data.submit(topup_result, wait_for=[data_filtered_topup])
+    if aaa_result != None:
+        a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
+
+    if bscs_result != None:
+        b = print_bscs_data.submit(bscs_result, wait_for=[data_filtered_bscs])
+
+    if dpi_result != None:
+        c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
+
+    if elastic_result != None:
+        d = print_elastic_data.submit(
+            elastic_result, wait_for=[data_filtered_elastic])
+
+    if ocs_result != None:
+        e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
+
+    if topup_result != None:
+        f = print_topup_data.submit(
+            topup_result, wait_for=[data_filtered_topup])
 
 
 if __name__ == "__main__":
