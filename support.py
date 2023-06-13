@@ -8,6 +8,13 @@ import subprocess
 from ping3 import ping
 import psycopg2
 from psycopg2 import Error
+import pandas as pd
+
+
+@task
+def print_data(data):
+
+    print(data)
 
 
 @task
@@ -38,23 +45,27 @@ def get_support_request():
         # Récupération des résultats de la requête
         rows = cursor.fetchall()
 
-        # Affichage des résultats
-        for row in rows:
-            print(row)
-
         # Fermeture du curseur et de la connexion
         cursor.close()
         connection.close()
 
+        # Création d'un DataFrame à partir des résultats
+        df = pd.DataFrame(rows)
+
+        return df
+
     except (Exception, Error) as error:
         # Gestion des erreurs de la base de données
-        print(f"Erreur lors de l'exécution de la requête : {error}")
+        return error
 
 
 @flow(task_runner=DaskTaskRunner())
 def support():
 
-    get_support_request.submit()
+    get_data = get_support_request.submit()
+    result = get_data.result(raise_on_failure=False)
+
+    y = print_data.submit(result, wait_for=[get_data])
 
 
 if __name__ == "__main__":

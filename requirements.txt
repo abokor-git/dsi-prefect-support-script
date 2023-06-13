@@ -1,3 +1,4 @@
 ping3
 prefect-dask
 psycopg2-binary
+pandas
