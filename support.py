@@ -107,27 +107,27 @@ def support():
 
     data_filtered_aaa = filtered_data.submit(
         get_data_result, "AAA", wait_for=[get_data])
-    aaa_result = filtered_data.result(raise_on_failure=False)
+    aaa_result = data_filtered_aaa.result(raise_on_failure=False)
 
     data_filtered_bscs = filtered_data.submit(
         get_data_result, "BSCS", wait_for=[get_data])
-    bscs_result = filtered_data.result(raise_on_failure=False)
+    bscs_result = data_filtered_bscs.result(raise_on_failure=False)
 
     data_filtered_dpi = filtered_data.submit(
         get_data_result, "DPI", wait_for=[get_data])
-    dpi_result = filtered_data.result(raise_on_failure=False)
+    dpi_result = data_filtered_dpi.result(raise_on_failure=False)
 
     data_filtered_elastic = filtered_data.submit(
         get_data_result, "ELASTIC", wait_for=[get_data])
-    elastic_result = filtered_data.result(raise_on_failure=False)
+    elastic_result = data_filtered_elastic.result(raise_on_failure=False)
 
     data_filtered_ocs = filtered_data.submit(
         get_data_result, "OCS", wait_for=[get_data])
-    ocs_result = filtered_data.result(raise_on_failure=False)
+    ocs_result = data_filtered_ocs.result(raise_on_failure=False)
 
     data_filtered_topup = filtered_data.submit(
         get_data_result, "TOPUP", wait_for=[get_data])
-    topup_result = filtered_data.result(raise_on_failure=False)
+    topup_result = data_filtered_topup.result(raise_on_failure=False)
 
     a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
     b = print_bscs_data.submit(bscs_result, wait_for=[data_filtered_bscs])
