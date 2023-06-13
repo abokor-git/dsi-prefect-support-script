@@ -110,17 +110,17 @@ def support():
     get_data = get_support_request.submit()
     get_data_result = get_data.result(raise_on_failure=False)
 
-    aaa, bscs, dpi, elastic, ocs, topup = filtered_data.submit(
+    data_filtered = filtered_data.submit(
         get_data_result, wait_for=[get_data])
     aaa_result, bscs_result, dpi_result, elastic_result, ocs_result, topup_result = filtered_data.result(
         raise_on_failure=False)
 
-    a = print_aaa_data.submit(aaa_result, wait_for=[aaa])
-    b = print_bscs_data.submit(aaa_result, wait_for=[bscs])
-    c = print_dpi_data.submit(aaa_result, wait_for=[dpi])
-    d = print_elastic_data.submit(aaa_result, wait_for=[elastic])
-    e = print_ocs_data.submit(aaa_result, wait_for=[ocs])
-    f = print_topup_data.submit(aaa_result, wait_for=[topup])
+    a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered])
+    b = print_bscs_data.submit(aaa_result, wait_for=[data_filtered])
+    c = print_dpi_data.submit(aaa_result, wait_for=[data_filtered])
+    d = print_elastic_data.submit(aaa_result, wait_for=[data_filtered])
+    e = print_ocs_data.submit(aaa_result, wait_for=[data_filtered])
+    f = print_topup_data.submit(aaa_result, wait_for=[data_filtered])
 
 
 if __name__ == "__main__":
