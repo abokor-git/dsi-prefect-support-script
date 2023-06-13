@@ -10,40 +10,42 @@ import psycopg2
 from psycopg2 import Error
 import pandas as pd
 
+import time
+
 
 @task
 def print_aaa_data(data):
-
+    time.sleep(5)
     print(data)
 
 
 @task
 def print_bscs_data(data):
-
+    time.sleep(8)
     print(data)
 
 
 @task
 def print_dpi_data(data):
-
+    time.sleep(11)
     print(data)
 
 
 @task
 def print_elastic_data(data):
-
+    time.sleep(14)
     print(data)
 
 
 @task
 def print_ocs_data(data):
-
+    time.sleep(17)
     print(data)
 
 
 @task
 def print_topup_data(data):
-
+    time.sleep(20)
     print(data)
 
 
