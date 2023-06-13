@@ -12,9 +12,52 @@ import pandas as pd
 
 
 @task
-def print_data(data):
+def print_aaa_data(data):
 
     print(data)
+
+
+@task
+def print_bscs_data(data):
+
+    print(data)
+
+
+@task
+def print_dpi_data(data):
+
+    print(data)
+
+
+@task
+def print_elastic_data(data):
+
+    print(data)
+
+
+@task
+def print_ocs_data(data):
+
+    print(data)
+
+
+@task
+def print_topup_data(data):
+
+    print(data)
+
+
+@task
+def filtered_data(df):
+
+    df_filtered_aaa = df.loc[df['platform'] == 'AAA']
+    df_filtered_bscs = df.loc[df['platform'] == 'BSCS']
+    df_filtered_dpi = df.loc[df['platform'] == 'DPI']
+    df_filtered_elastic = df.loc[df['platform'] == 'ELASTIC']
+    df_filtered_ocs = df.loc[df['platform'] == 'OCS']
+    df_filtered_topup = df.loc[df['platform'] == 'TOPUP']
+
+    return df_filtered_aaa, df_filtered_bscs, df_filtered_dpi, df_filtered_elastic, df_filtered_ocs, df_filtered_topup
 
 
 @task
@@ -63,9 +106,19 @@ def get_support_request():
 def support():
 
     get_data = get_support_request.submit()
-    result = get_data.result(raise_on_failure=False)
+    get_data_result = get_data.result(raise_on_failure=False)
 
-    y = print_data.submit(result, wait_for=[get_data])
+    aaa, bscs, dpi, elastic, ocs, topup = filtered_data.submit(
+        get_data_result, wait_for=[get_data])
+    aaa_result, bscs_result, dpi_result, elastic_result, ocs_result, topup_result = filtered_data.result(
+        raise_on_failure=False)
+
+    a = print_aaa_data.submit(aaa_result, wait_for=[aaa])
+    b = print_bscs_data.submit(aaa_result, wait_for=[bscs])
+    c = print_dpi_data.submit(aaa_result, wait_for=[dpi])
+    d = print_elastic_data.submit(aaa_result, wait_for=[elastic])
+    e = print_ocs_data.submit(aaa_result, wait_for=[ocs])
+    f = print_topup_data.submit(aaa_result, wait_for=[topup])
 
 
 if __name__ == "__main__":
