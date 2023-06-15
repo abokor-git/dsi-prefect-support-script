@@ -271,52 +271,58 @@ def support():
         get_data = get_support_request.submit(wait_for=[vpn_start])
         get_data_result = get_data.result(raise_on_failure=False)
 
-    data_filtered_aaa = filtered_data.submit(
-        get_data_result, "AAA", wait_for=[get_data])
-    aaa_result = data_filtered_aaa.result(raise_on_failure=False)
+    for x in range(5):
 
-    data_filtered_bscs = filtered_data.submit(
-        get_data_result, "BSCS", wait_for=[get_data])
-    bscs_result = data_filtered_bscs.result(raise_on_failure=False)
+        time.sleep(20)
 
-    data_filtered_dpi = filtered_data.submit(
-        get_data_result, "DPI", wait_for=[get_data])
-    dpi_result = data_filtered_dpi.result(raise_on_failure=False)
+        data_filtered_aaa = filtered_data.submit(
+            get_data_result, "AAA", wait_for=[get_data])
+        aaa_result = data_filtered_aaa.result(raise_on_failure=False)
 
-    data_filtered_elastic = filtered_data.submit(
-        get_data_result, "ELASTIC", wait_for=[get_data])
-    elastic_result = data_filtered_elastic.result(raise_on_failure=False)
+        data_filtered_bscs = filtered_data.submit(
+            get_data_result, "BSCS", wait_for=[get_data])
+        bscs_result = data_filtered_bscs.result(raise_on_failure=False)
 
-    data_filtered_ocs = filtered_data.submit(
-        get_data_result, "OCS", wait_for=[get_data])
-    ocs_result = data_filtered_ocs.result(raise_on_failure=False)
+        data_filtered_dpi = filtered_data.submit(
+            get_data_result, "DPI", wait_for=[get_data])
+        dpi_result = data_filtered_dpi.result(raise_on_failure=False)
 
-    data_filtered_topup = filtered_data.submit(
-        get_data_result, "TOPUP", wait_for=[get_data])
-    topup_result = data_filtered_topup.result(raise_on_failure=False)
+        data_filtered_elastic = filtered_data.submit(
+            get_data_result, "ELASTIC", wait_for=[get_data])
+        elastic_result = data_filtered_elastic.result(raise_on_failure=False)
 
-    if isinstance(aaa_result, pd.DataFrame) and not aaa_result.empty:
-        a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
+        data_filtered_ocs = filtered_data.submit(
+            get_data_result, "OCS", wait_for=[get_data])
+        ocs_result = data_filtered_ocs.result(raise_on_failure=False)
 
-    if isinstance(bscs_result, pd.DataFrame) and not bscs_result.empty:
-        b = print_bscs_data.submit(
-            bscs_result, wait_for=[data_filtered_bscs])
+        data_filtered_topup = filtered_data.submit(
+            get_data_result, "TOPUP", wait_for=[get_data])
+        topup_result = data_filtered_topup.result(raise_on_failure=False)
 
-    if isinstance(dpi_result, pd.DataFrame) and not dpi_result.empty:
-        c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
+        if isinstance(aaa_result, pd.DataFrame) and not aaa_result.empty:
+            a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
 
-    if isinstance(elastic_result, pd.DataFrame) and not elastic_result.empty:
-        d = print_elastic_data.submit(
-            elastic_result, wait_for=[data_filtered_elastic])
+        if isinstance(bscs_result, pd.DataFrame) and not bscs_result.empty:
+            b = print_bscs_data.submit(
+                bscs_result, wait_for=[data_filtered_bscs])
 
-    if isinstance(ocs_result, pd.DataFrame) and not ocs_result.empty:
-        e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
+        if isinstance(dpi_result, pd.DataFrame) and not dpi_result.empty:
+            c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
 
-    if isinstance(topup_result, pd.DataFrame) and not topup_result.empty:
-        topup_prod_data = get_topup_prod_data.submit(
-            topup_result, wait_for=[data_filtered_topup])
-        topup_prod_data_result = topup_prod_data.result(
-            raise_on_failure=False)
+        if isinstance(elastic_result, pd.DataFrame) and not elastic_result.empty:
+            d = print_elastic_data.submit(
+                elastic_result, wait_for=[data_filtered_elastic])
+
+        if isinstance(ocs_result, pd.DataFrame) and not ocs_result.empty:
+            e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
+
+        if isinstance(topup_result, pd.DataFrame) and not topup_result.empty:
+            topup_prod_data = get_topup_prod_data.submit(
+                topup_result, wait_for=[data_filtered_topup])
+            topup_prod_data_result = topup_prod_data.result(
+                raise_on_failure=False)
+
+    return Completed()
 
 
 if __name__ == "__main__":
