@@ -1,4 +1,7 @@
-ping3
 prefect-dask
+#######################
+mysql-connector-python
 psycopg2-binary
+#######################
 pandas
+ping3
