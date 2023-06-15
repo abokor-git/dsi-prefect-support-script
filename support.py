@@ -322,6 +322,10 @@ def support():
             topup_prod_data_result = topup_prod_data.result(
                 raise_on_failure=False)
 
+            topup_save_data = save_data.submit(
+                topup_prod_data_result, wait_for=[topup_prod_data])
+            topup_save_data = topup_save_data.result(raise_on_failure=False)
+
     return Completed()
 
 
