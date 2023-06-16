@@ -17,7 +17,7 @@ import time
 
 
 @task
-def save_data(data):
+def xana_save_data(data):
 
     try:
 
@@ -64,37 +64,7 @@ def save_data(data):
 
 
 @task
-def print_aaa_data(data):
-    time.sleep(5)
-    print(data)
-
-
-@task
-def print_bscs_data(data):
-    time.sleep(8)
-    print(data)
-
-
-@task
-def print_dpi_data(data):
-    time.sleep(11)
-    print(data)
-
-
-@task
-def print_elastic_data(data):
-    time.sleep(14)
-    print(data)
-
-
-@task
-def print_ocs_data(data):
-    time.sleep(17)
-    print(data)
-
-
-@task
-def get_topup_prod_data(data):
+def topup_get_prod_data(data):
 
     response_json = []
 
@@ -159,15 +129,7 @@ def get_topup_prod_data(data):
 
 
 @task
-def filtered_data(df, platform):
-
-    df_filtered = df.loc[df['platform'] == platform]
-
-    return df_filtered
-
-
-@task
-def get_support_request():
+def xana_get_topup_support_request():
 
     try:
 
@@ -188,7 +150,7 @@ def get_support_request():
         cursor = connection.cursor()
 
         # Exécution de la requête SELECT
-        query = "SELECT id, payload, platform, date, is_processed, user_id FROM public.home_supportrequests where is_processed=false;"
+        query = "SELECT id, payload, platform, date, is_processed, user_id FROM public.home_supportrequests where platform='TOPUP' and is_processed=false;"
         cursor.execute(query)
 
         # Récupération des résultats de la requête
@@ -254,7 +216,7 @@ def check_ip_availability():
 
 
 @flow(task_runner=DaskTaskRunner())
-def support():
+def topup_support():
 
     vpn_status = check_ip_availability.submit()
     vpn_status_result = vpn_status.result(raise_on_failure=False)
@@ -263,68 +225,26 @@ def support():
 
         vpn_start = launch_vpn.submit()
 
-        get_data = get_support_request.submit(wait_for=[vpn_start])
-        get_data_result = get_data.result(raise_on_failure=False)
+        xana_get_data = xana_get_topup_support_request.submit(wait_for=[
+                                                              vpn_start])
+        xana_get_data_result = xana_get_data.result(raise_on_failure=False)
 
     else:
 
-        get_data = get_support_request.submit(wait_for=[vpn_start])
-        get_data_result = get_data.result(raise_on_failure=False)
+        xana_get_data = xana_get_topup_support_request.submit(wait_for=[
+                                                              vpn_start])
+        xana_get_data_result = xana_get_data.result(raise_on_failure=False)
 
-    for x in range(5):
+    if isinstance(xana_get_data_result, pd.DataFrame) and not xana_get_data_result.empty:
 
-        time.sleep(20)
+        topup_prod_get_data = topup_get_prod_data.submit(
+            xana_get_data_result, wait_for=[xana_get_data])
+        topup_prod_get_data_result = topup_prod_get_data.result(
+            raise_on_failure=False)
 
-        data_filtered_aaa = filtered_data.submit(
-            get_data_result, "AAA", wait_for=[get_data])
-        aaa_result = data_filtered_aaa.result(raise_on_failure=False)
-
-        data_filtered_bscs = filtered_data.submit(
-            get_data_result, "BSCS", wait_for=[get_data])
-        bscs_result = data_filtered_bscs.result(raise_on_failure=False)
-
-        data_filtered_dpi = filtered_data.submit(
-            get_data_result, "DPI", wait_for=[get_data])
-        dpi_result = data_filtered_dpi.result(raise_on_failure=False)
-
-        data_filtered_elastic = filtered_data.submit(
-            get_data_result, "ELASTIC", wait_for=[get_data])
-        elastic_result = data_filtered_elastic.result(raise_on_failure=False)
-
-        data_filtered_ocs = filtered_data.submit(
-            get_data_result, "OCS", wait_for=[get_data])
-        ocs_result = data_filtered_ocs.result(raise_on_failure=False)
-
-        data_filtered_topup = filtered_data.submit(
-            get_data_result, "TOPUP", wait_for=[get_data])
-        topup_result = data_filtered_topup.result(raise_on_failure=False)
-
-        if isinstance(aaa_result, pd.DataFrame) and not aaa_result.empty:
-            a = print_aaa_data.submit(aaa_result, wait_for=[data_filtered_aaa])
-
-        if isinstance(bscs_result, pd.DataFrame) and not bscs_result.empty:
-            b = print_bscs_data.submit(
-                bscs_result, wait_for=[data_filtered_bscs])
-
-        if isinstance(dpi_result, pd.DataFrame) and not dpi_result.empty:
-            c = print_dpi_data.submit(dpi_result, wait_for=[data_filtered_dpi])
-
-        if isinstance(elastic_result, pd.DataFrame) and not elastic_result.empty:
-            d = print_elastic_data.submit(
-                elastic_result, wait_for=[data_filtered_elastic])
-
-        if isinstance(ocs_result, pd.DataFrame) and not ocs_result.empty:
-            e = print_ocs_data.submit(ocs_result, wait_for=[data_filtered_ocs])
-
-        if isinstance(topup_result, pd.DataFrame) and not topup_result.empty:
-            topup_prod_data = get_topup_prod_data.submit(
-                topup_result, wait_for=[data_filtered_topup])
-            topup_prod_data_result = topup_prod_data.result(
-                raise_on_failure=False)
-
-            topup_save_data = save_data.submit(
-                topup_prod_data_result, wait_for=[topup_prod_data])
-            topup_save_data = topup_save_data.result(raise_on_failure=False)
+        topup_save_data = xana_save_data.submit(
+            topup_prod_get_data_result, wait_for=[topup_prod_get_data])
+        topup_save_data = topup_save_data.result(raise_on_failure=False)
 
     return Completed()
 
@@ -332,11 +252,11 @@ def support():
 if __name__ == "__main__":
 
     deployment = Deployment.build_from_flow(
-        name="Support Script",
-        flow=support,
+        name="Topup Support Script",
+        flow=topup_support,
         work_queue_name="agent-prod",
         work_pool_name="xana-pools"
     )
     deployment.apply()
 
-    support()
+    topup_support()
