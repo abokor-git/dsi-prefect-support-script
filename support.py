@@ -184,6 +184,8 @@ def launch_vpn():
     # Exécuter la commande en arrière-plan
     subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
 
+    time.sleep(5)
+
 
 @task
 def check_ip_availability():
