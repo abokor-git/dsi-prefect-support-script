@@ -19,8 +19,6 @@ import time
 @task
 def xana_save_data(data):
 
-    print(data)
-
     try:
 
         xana_host = os.getenv('XANA_HOST')
@@ -127,7 +125,8 @@ def topup_get_prod_data(data):
     except mysql.connector.Error as error:
         # Gérer l'erreur de la base de données
         data["response"] = ''
-        print(f"Erreur lors de l'exécution de la requête : {error}")
+
+    return data
 
 
 @task
@@ -186,7 +185,7 @@ def launch_vpn():
     # Exécuter la commande en arrière-plan
     subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
 
-    time.sleep(5)
+    time.sleep(3)
 
 
 @task
