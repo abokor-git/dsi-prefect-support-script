@@ -2,7 +2,7 @@ from prefect import task, flow
 from prefect.server.schemas.states import Completed, Failed
 from prefect.deployments import Deployment
 from prefect_dask.task_runners import DaskTaskRunner
-from prefect.server.schemas.schedules import IntervalSchedule
+# from prefect.server.schemas.schedules import IntervalSchedule
 
 import mysql.connector
 import psycopg2
@@ -264,7 +264,7 @@ if __name__ == "__main__":
         flow=topup_support,
         work_queue_name="agent-prod",
         work_pool_name="xana-pools",
-        schedule=(IntervalSchedule(interval=10))
+        # schedule=(IntervalSchedule(interval=10))
     )
     deployment.apply()
 
