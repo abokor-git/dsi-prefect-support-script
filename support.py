@@ -19,6 +19,8 @@ import time
 @task
 def xana_save_data(data):
 
+    print(data)
+
     try:
 
         xana_host = os.getenv('XANA_HOST')
