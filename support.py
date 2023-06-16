@@ -2,6 +2,7 @@ from prefect import task, flow
 from prefect.server.schemas.states import Completed, Failed
 from prefect.deployments import Deployment
 from prefect_dask.task_runners import DaskTaskRunner
+from prefect.server.schemas.schedules import IntervalSchedule
 
 import mysql.connector
 import psycopg2
@@ -221,35 +222,35 @@ def check_ip_availability():
 @flow(task_runner=DaskTaskRunner())
 def topup_support():
 
-    while (True):
+    vpn_status = check_ip_availability.submit()
+    vpn_status_result = vpn_status.result(raise_on_failure=False)
 
-        vpn_status = check_ip_availability.submit()
-        vpn_status_result = vpn_status.result(raise_on_failure=False)
+    if vpn_status.get_state().is_failed():
 
-        if vpn_status.get_state().is_failed():
+        vpn_start = launch_vpn.submit()
 
-            vpn_start = launch_vpn.submit()
+        xana_get_data = xana_get_topup_support_request.submit(wait_for=[
+            vpn_start])
+        xana_get_data_result = xana_get_data.result(raise_on_failure=False)
 
-            xana_get_data = xana_get_topup_support_request.submit(wait_for=[
-                vpn_start])
-            xana_get_data_result = xana_get_data.result(raise_on_failure=False)
+    else:
 
-        else:
+        xana_get_data = xana_get_topup_support_request.submit(wait_for=[
+            vpn_start])
+        xana_get_data_result = xana_get_data.result(raise_on_failure=False)
 
-            xana_get_data = xana_get_topup_support_request.submit(wait_for=[
-                vpn_start])
-            xana_get_data_result = xana_get_data.result(raise_on_failure=False)
+    if isinstance(xana_get_data_result, pd.DataFrame) and not xana_get_data_result.empty:
 
-        if isinstance(xana_get_data_result, pd.DataFrame) and not xana_get_data_result.empty:
+        topup_prod_get_data = topup_get_prod_data.submit(
+            xana_get_data_result, wait_for=[xana_get_data])
+        topup_prod_get_data_result = topup_prod_get_data.result(
+            raise_on_failure=False)
 
-            topup_prod_get_data = topup_get_prod_data.submit(
-                xana_get_data_result, wait_for=[xana_get_data])
-            topup_prod_get_data_result = topup_prod_get_data.result(
-                raise_on_failure=False)
+        topup_save_data = xana_save_data.submit(
+            topup_prod_get_data_result, wait_for=[topup_prod_get_data])
+        topup_save_data = topup_save_data.result(raise_on_failure=False)
 
-            topup_save_data = xana_save_data.submit(
-                topup_prod_get_data_result, wait_for=[topup_prod_get_data])
-            topup_save_data = topup_save_data.result(raise_on_failure=False)
+    return Completed()
 
 
 if __name__ == "__main__":
@@ -258,7 +259,8 @@ if __name__ == "__main__":
         name="Topup Support Script",
         flow=topup_support,
         work_queue_name="agent-prod",
-        work_pool_name="xana-pools"
+        work_pool_name="xana-pools",
+        schedule=(IntervalSchedule(interval=10))
     )
     deployment.apply()
 
