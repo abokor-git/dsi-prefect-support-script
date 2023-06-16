@@ -221,35 +221,35 @@ def check_ip_availability():
 @flow(task_runner=DaskTaskRunner())
 def topup_support():
 
-    vpn_status = check_ip_availability.submit()
-    vpn_status_result = vpn_status.result(raise_on_failure=False)
+    while (True):
 
-    if vpn_status.get_state().is_failed():
+        vpn_status = check_ip_availability.submit()
+        vpn_status_result = vpn_status.result(raise_on_failure=False)
 
-        vpn_start = launch_vpn.submit()
+        if vpn_status.get_state().is_failed():
 
-        xana_get_data = xana_get_topup_support_request.submit(wait_for=[
-                                                              vpn_start])
-        xana_get_data_result = xana_get_data.result(raise_on_failure=False)
+            vpn_start = launch_vpn.submit()
 
-    else:
+            xana_get_data = xana_get_topup_support_request.submit(wait_for=[
+                vpn_start])
+            xana_get_data_result = xana_get_data.result(raise_on_failure=False)
 
-        xana_get_data = xana_get_topup_support_request.submit(wait_for=[
-                                                              vpn_start])
-        xana_get_data_result = xana_get_data.result(raise_on_failure=False)
+        else:
 
-    if isinstance(xana_get_data_result, pd.DataFrame) and not xana_get_data_result.empty:
+            xana_get_data = xana_get_topup_support_request.submit(wait_for=[
+                vpn_start])
+            xana_get_data_result = xana_get_data.result(raise_on_failure=False)
 
-        topup_prod_get_data = topup_get_prod_data.submit(
-            xana_get_data_result, wait_for=[xana_get_data])
-        topup_prod_get_data_result = topup_prod_get_data.result(
-            raise_on_failure=False)
+        if isinstance(xana_get_data_result, pd.DataFrame) and not xana_get_data_result.empty:
 
-        topup_save_data = xana_save_data.submit(
-            topup_prod_get_data_result, wait_for=[topup_prod_get_data])
-        topup_save_data = topup_save_data.result(raise_on_failure=False)
+            topup_prod_get_data = topup_get_prod_data.submit(
+                xana_get_data_result, wait_for=[xana_get_data])
+            topup_prod_get_data_result = topup_prod_get_data.result(
+                raise_on_failure=False)
 
-    return Completed()
+            topup_save_data = xana_save_data.submit(
+                topup_prod_get_data_result, wait_for=[topup_prod_get_data])
+            topup_save_data = topup_save_data.result(raise_on_failure=False)
 
 
 if __name__ == "__main__":
