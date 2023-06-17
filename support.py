@@ -55,6 +55,8 @@ def send_email(body):
         # Fermer la connexion au serveur SMTP
         server.quit()
 
+    time.sleep(20)
+
 
 @task
 def xana_save_data(data):
