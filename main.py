@@ -187,7 +187,7 @@ def launch_vpn():
 
 
 @flow(task_runner=DaskTaskRunner())
-def topup_support():
+def topup_support_script():
 
     vpn_start = launch_vpn.submit()
 
@@ -222,10 +222,10 @@ if __name__ == "__main__":
 
     deployment = Deployment.build_from_flow(
         name="Topup Support Script",
-        flow=topup_support,
+        flow=topup_support_script,
         work_queue_name="agent-prod",
         work_pool_name="xana-pools"
     )
     deployment.apply()
 
-    topup_support()
+    topup_support_script()
