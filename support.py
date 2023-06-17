@@ -164,7 +164,7 @@ def topup_get_prod_data(data):
 
     except mysql.connector.Error as error:
         # Gérer l'erreur de la base de données
-        data["response"] = ''
+        raise Failed()
 
     return data
 
@@ -239,26 +239,26 @@ def topup_support():
 
             xana_get_data = xana_get_topup_support_request.submit(wait_for=[
                                                                   vpn_start])
-            xana_get_data_result = xana_get_data.result(raise_on_failure=False)
+            xana_get_data_result = xana_get_data.result(raise_on_failure=True)
 
             if isinstance(xana_get_data_result, pd.DataFrame) and not xana_get_data_result.empty:
 
                 topup_prod_get_data = topup_get_prod_data.submit(
                     xana_get_data_result, wait_for=[xana_get_data])
                 topup_prod_get_data_result = topup_prod_get_data.result(
-                    raise_on_failure=False)
+                    raise_on_failure=True)
 
                 topup_save_data = xana_save_data.submit(
                     topup_prod_get_data_result, wait_for=[topup_prod_get_data])
                 topup_save_data = topup_save_data.result(
-                    raise_on_failure=False)
+                    raise_on_failure=True)
 
         except Exception as e:
 
             body = 'Une erreur a été détectée dans le script "Prefect Topup Script" et a entraîné son arrêt inattendu.\n\n Erreur : {}'.format(
                 e)
             email = send_email.submit(body)
-            email_result = email.result(raise_on_failure=False)
+            email_result = email.result(raise_on_failure=True)
             return Failed()
 
         time.sleep(10)
