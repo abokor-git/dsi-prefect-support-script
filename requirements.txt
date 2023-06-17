@@ -4,4 +4,3 @@ mysql-connector-python
 psycopg2-binary
 #######################
 pandas
-ping3
