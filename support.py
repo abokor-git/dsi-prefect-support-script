@@ -10,10 +10,50 @@ from psycopg2 import Error
 import os
 import subprocess
 
-from ping3 import ping
-
 import pandas as pd
 import time
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+@task
+def send_email(body):
+
+    pwd = os.getenv('XANA_EMAIL_PASSWORD')
+    sender_email = os.getenv('XANA_EMAIL_SENDER')
+    receiver_email = os.getenv('XANA_EMAIL_RECEIVER')
+
+    # Créer un objet MIMEMultipart pour le message
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = 'Prefect TopUp Script Failed !'
+
+    # Ajouter le corps du message
+    message.attach(MIMEText(body, "plain"))
+
+    # Configurer le serveur SMTP pour Outlook
+    smtp_server = "smtp.office365.com"
+    smtp_port = 587
+
+    # Se connecter au serveur SMTP
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+
+    try:
+        # Se connecter au compte Outlook
+        server.login(sender_email, pwd)
+
+        # Envoyer l'e-mail
+        server.sendmail(sender_email, receiver_email, message.as_string())
+        print("E-mail envoyé avec succès!")
+    except Exception as e:
+        raise Failed()
+    finally:
+        # Fermer la connexion au serveur SMTP
+        server.quit()
 
 
 @task
@@ -60,7 +100,7 @@ def xana_save_data(data):
 
     except (Exception, psycopg2.Error) as error:
 
-        return Completed()
+        raise Failed()
 
 
 @task
@@ -169,7 +209,7 @@ def xana_get_topup_support_request():
 
     except (Exception, Error) as error:
         # Gestion des erreurs de la base de données
-        return error
+        raise Failed()
 
 
 @task
@@ -215,6 +255,10 @@ def topup_support():
 
         except Exception as e:
 
+            body = 'Une erreur a été détectée dans le script "Prefect Topup Script" et a entraîné son arrêt inattendu.\n\n Erreur : {}'.format(
+                e)
+            email = send_email.submit(body)
+            email_result = email.result(raise_on_failure=False)
             return Failed()
 
         time.sleep(10)
